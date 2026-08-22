@@ -1,5 +1,7 @@
 # Windows-Preflight-Cleaner
 
+🇫🇷 [Version française](README_FRENCH.md)
+
 Self-contained PowerShell maintenance script for Windows 11. Safely cleans 46+ system/app caches, logs, temp files and WinSxS via DISM, flushes DNS, empties Recycle Bin. Ships with dry-run mode, 17-check self-test, exit codes and HTML/JSON reports for multi-machine deployment.
 
 > No blind deletes, ever. A path safety guard rejects unsafe paths, dry-run previews exactly what would happen first, and locked files are reported honestly instead of silently skipped.
