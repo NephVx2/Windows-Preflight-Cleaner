@@ -1,5 +1,7 @@
 # Windows-Preflight-Cleaner
 
+🇬🇧 [English version](README.md)
+
 Script PowerShell autonome de maintenance pour Windows 11. Nettoie en toute securite 46+ caches systeme/applicatifs, journaux, fichiers temporaires et WinSxS via DISM, vide le cache DNS et la corbeille. Livre avec mode simulation, self-test a 17 verifications, codes de sortie et rapports HTML/JSON pour un deploiement multi-machines.
 
 > Aucune suppression a l'aveugle. Un garde-fou de chemin rejette les cibles dangereuses, le mode simulation previsualise exactement ce qui se passerait avant d'agir, et les fichiers verrouilles sont signales honnetement plutot que masques silencieusement.
