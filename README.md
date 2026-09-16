@@ -11,6 +11,7 @@ Self-contained PowerShell maintenance script for Windows 11. Safely cleans 46+ s
 ## Table of contents
 
 - [Overview](#overview)
+- [Screenshots](#screenshots)
 - [What it cleans](#what-it-cleans)
 - [What it does NOT touch](#what-it-does-not-touch)
 - [Prerequisites](#prerequisites)
@@ -25,7 +26,7 @@ Self-contained PowerShell maintenance script for Windows 11. Safely cleans 46+ s
 
 ## Overview
 
-`Nettoyage-Windows11-v5_2.ps1` cleans system and application caches, obsolete logs, multi-user temporary files, and Windows components (WinSxS via DISM) on a Windows 11 machine.
+`Windows-Preflight-Cleaner.ps1` cleans system and application caches, obsolete logs, multi-user temporary files, and Windows components (WinSxS via DISM) on a Windows 11 machine.
 
 On every run, it:
 
@@ -36,6 +37,21 @@ On every run, it:
 - automatically purges old reports past a configurable retention period.
 
 Designed to run both interactively (workstation) and silently (scheduled task, multi-machine deployment).
+
+> **v5.3.0** — the script was renamed from `Nettoyage-Windows11-v5_2.ps1` to `Windows-Preflight-Cleaner.ps1` and fully translated to English (console output, HTML report, all 46 target names). It never parses localized command output (robocopy/DISM run in silent binary mode), so it works identically on French- and English-language Windows installs. All number formatting (GB/percentage) now uses an invariant, locale-independent decimal point.
+
+---
+
+## Screenshots
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/NephVx2/Windows-Preflight-Cleaner/main/screenshots/01_console-run-start.png" width="49%">
+  <img src="https://raw.githubusercontent.com/NephVx2/Windows-Preflight-Cleaner/main/screenshots/06_html-report-dashboard.png" width="49%">
+</p>
+
+Left: a normal console run. Right: the HTML report's dashboard header (summary tiles, disk usage bar, trend across recent runs).
+
+More screenshots (both console runs, the second run on an already-clean machine, and the full HTML report broken down section by section) are in the [`screenshots/`](https://github.com/NephVx2/Windows-Preflight-Cleaner/tree/main/screenshots) folder.
 
 ---
 
@@ -133,7 +149,7 @@ Start Menu / Taskbar JumpLists — purely cosmetic/privacy-related, automaticall
 | Target | Path |
 |---|---|
 | Automatic JumpLists | `%APPDATA%\Microsoft\Windows\Recent\AutomaticDestinations` |
-| Manual JumpLists | `%APPDATA%\Microsoft\Windows\Recent\CustomDestinations` |
+| Custom JumpLists | `%APPDATA%\Microsoft\Windows\Recent\CustomDestinations` |
 </details>
 
 <details>
@@ -213,21 +229,21 @@ Start Menu / Taskbar JumpLists — purely cosmetic/privacy-related, automaticall
 - PowerShell 5.1 (built into Windows) or PowerShell 7+.
 - Administrator rights. The script self-elevates if launched from a non-admin session (UAC prompt).
 - `robocopy.exe` and `DISM.exe` present (built into Windows by default).
-- The reports folder must be writable: `%USERPROFILE%\Desktop\Rapports_Maintenance\Nettoyage systeme` (automatically created on first run if missing).
+- The reports folder must be writable: `%USERPROFILE%\Desktop\Maintenance_Reports\Windows-Preflight-Cleaner` (automatically created on first run if missing).
 - If the script is digitally signed (recommended in environments using `-ExecutionPolicy AllSigned`/`RemoteSigned`): the signing certificate must be trusted on the target machine, otherwise PowerShell will refuse to run it.
 
 ---
 
 ## First run (step by step)
 
-1. Copy `Nettoyage-Windows11-v5_2.ps1` to the target machine (for example into a `C:\Scripts\Maintenance` folder).
+1. Copy `Windows-Preflight-Cleaner.ps1` to the target machine (for example into a `C:\Scripts\Maintenance` folder).
 
 2. Open a PowerShell terminal (no need to run it as admin manually — the script self-elevates).
 
 3. Check system prerequisites **without cleaning anything**:
 
    ```powershell
-   .\Nettoyage-Windows11-v5_2.ps1 -SelfTest
+   .\Windows-Preflight-Cleaner.ps1 -SelfTest
    ```
 
    Runs 17 automated checks (admin rights, presence of robocopy/DISM, required services, internal script functions) and displays PASS/FAIL for each. The script exits without touching any files. Expected exit code: `0` (see [Exit codes](#exit-codes)).
@@ -235,7 +251,7 @@ Start Menu / Taskbar JumpLists — purely cosmetic/privacy-related, automaticall
 4. Run a **full simulation** before the first real cleanup, to preview what would be removed without removing anything:
 
    ```powershell
-   .\Nettoyage-Windows11-v5_2.ps1 -DryRun
+   .\Windows-Preflight-Cleaner.ps1 -DryRun
    ```
 
    Calculates potential gains per target, generates an HTML report flagged `[SIMULATION MODE]`, and performs no deletion, no DISM run, and no DNS/Recycle Bin flush.
@@ -245,7 +261,7 @@ Start Menu / Taskbar JumpLists — purely cosmetic/privacy-related, automaticall
 6. Run the **first real cleanup**:
 
    ```powershell
-   .\Nettoyage-Windows11-v5_2.ps1
+   .\Windows-Preflight-Cleaner.ps1
    ```
 
    Answer the interactive prompts (open report, final ENTER confirmation). The full cleanup typically takes under 10 seconds excluding DISM (`StartComponentCleanup` can take several minutes depending on the state of the WinSxS folder).
@@ -270,10 +286,10 @@ Start Menu / Taskbar JumpLists — purely cosmetic/privacy-related, automaticall
 **Examples:**
 
 ```powershell
-.\Nettoyage-Windows11-v5_2.ps1 -DryRun
-.\Nettoyage-Windows11-v5_2.ps1 -Silent -SkipTargets "Prefetch","Steam AppCache"
-.\Nettoyage-Windows11-v5_2.ps1 -CreateRestorePoint -ResetBase
-.\Nettoyage-Windows11-v5_2.ps1 -RetainReportsDays 30
+.\Windows-Preflight-Cleaner.ps1 -DryRun
+.\Windows-Preflight-Cleaner.ps1 -Silent -SkipTargets "Prefetch","Steam AppCache"
+.\Windows-Preflight-Cleaner.ps1 -CreateRestorePoint -ResetBase
+.\Windows-Preflight-Cleaner.ps1 -RetainReportsDays 30
 ```
 
 ---
@@ -301,16 +317,16 @@ echo $LASTEXITCODE
 On every run (including `-DryRun`, and partially `-SelfTest`), the script writes to:
 
 ```
-%USERPROFILE%\Desktop\Rapports_Maintenance\Nettoyage systeme\
+%USERPROFILE%\Desktop\Maintenance_Reports\Windows-Preflight-Cleaner\
 ```
 
 | File | Content |
 |---|---|
-| `Nettoyage-YYYY-MM-DD_HH-mm-ss.html` | Visual report: summary tiles, disk usage bar, 10-run trend, per-target detail with color-coded status, action log |
-| `Nettoyage-YYYY-MM-DD_HH-mm-ss.json` | Full export of all run data |
+| `Windows-Preflight-Cleaner-YYYY-MM-DD_HH-mm-ss.html` | Visual report: summary tiles, disk usage bar, 10-run trend, per-target detail with color-coded status, action log |
+| `Windows-Preflight-Cleaner-YYYY-MM-DD_HH-mm-ss.json` | Full export of all run data |
 | `Transcript-YYYY-MM-DD_HH-mm-ss.log` | Raw PowerShell transcript |
-| `Historique_v5.csv` | Cumulative history (append-only), never purged |
-| `Baseline_v5.json` | State of the last run, used to compute the delta on the next run, never purged |
+| `Windows-Preflight-Cleaner-History.csv` | Cumulative history (append-only), never purged |
+| `Windows-Preflight-Cleaner-Baseline.json` | State of the last run, used to compute the delta on the next run, never purged |
 
 HTML/JSON/Transcript reports older than `-RetainReportsDays` (60 days by default) are purged automatically at the end of the run.
 
@@ -341,7 +357,7 @@ The script is self-contained (no external dependencies other than `robocopy.exe`
    | Field | Value |
    |---|---|
    | Program/script | `pwsh.exe` (or `powershell.exe`) |
-   | Arguments | `-NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\Maintenance\Nettoyage-Windows11-v5_2.ps1" -Silent` |
+   | Arguments | `-NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\Maintenance\Windows-Preflight-Cleaner.ps1" -Silent` |
    | Run with highest privileges | Yes (required for administrator rights) |
 
 5. **Monitor via `$LASTEXITCODE`** rather than parsing the transcript: a code of `1` or `2` warrants a manual check or an alert in your monitoring tool.
@@ -356,6 +372,12 @@ The script is self-contained (no external dependencies other than `robocopy.exe`
 <summary><strong>A target shows up red (!) or yellow (~) in the report</strong></summary>
 
 Some files were open in an application at the time of cleanup (e.g. a browser running while its cache was being cleaned). Close the relevant application and re-run the script to finish cleaning that target. The end-of-run summary lists the affected targets along with the exact amount of space that could not be recovered.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/NephVx2/Windows-Preflight-Cleaner/main/screenshots/09_html-report-detail-table-locked.png" width="80%">
+</p>
+
+The detail table (above) and the action log both flag partial (`~`) and locked (`!`) targets with a left border and an explicit item count, e.g. `VS Code Logs : partial cleanup (41 removed, 29 locked)`.
 </details>
 
 <details>
@@ -384,4 +406,4 @@ Normal: Windows can reclaim freed space almost instantly for its own purposes (d
 
 ---
 
-<sub>Nettoyage-Windows11 v5.2 — built and hardened through iterative real-machine testing.</sub>
+<sub>Windows-Preflight-Cleaner v5.3.0 — built and hardened through iterative real-machine testing.</sub>
