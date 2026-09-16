@@ -11,6 +11,7 @@ Script PowerShell autonome de maintenance pour Windows 11. Nettoie en toute secu
 ## Sommaire
 
 - [Presentation](#presentation)
+- [Captures d'ecran](#captures-decran)
 - [Ce que le script nettoie](#ce-que-le-script-nettoie)
 - [Ce que le script ne touche pas](#ce-que-le-script-ne-touche-pas)
 - [Prerequis](#prerequis)
@@ -25,7 +26,7 @@ Script PowerShell autonome de maintenance pour Windows 11. Nettoie en toute secu
 
 ## Presentation
 
-`Nettoyage-Windows11-v5_2.ps1` nettoie les caches systeme et applicatifs, les journaux obsoletes, les fichiers temporaires multi-utilisateurs et les composants Windows (WinSxS via DISM) sur une machine Windows 11.
+`Windows-Preflight-Cleaner.ps1` nettoie les caches systeme et applicatifs, les journaux obsoletes, les fichiers temporaires multi-utilisateurs et les composants Windows (WinSxS via DISM) sur une machine Windows 11.
 
 A chaque execution, il :
 
@@ -36,6 +37,23 @@ A chaque execution, il :
 - purge automatiquement les anciens rapports au-dela d'un delai configurable.
 
 Concu pour tourner aussi bien en interactif (poste de travail) qu'en silencieux (tache planifiee, deploiement multi-machines).
+
+> **v5.3.0** — le script a ete renomme de `Nettoyage-Windows11-v5_2.ps1` vers `Windows-Preflight-Cleaner.ps1` et integralement traduit en anglais (sortie console, rapport HTML, les 46 noms de cibles). Il ne parse jamais de sortie de commande localisee (robocopy/DISM tournent en mode binaire silencieux), donc il fonctionne a l'identique sur une machine Windows en francais ou en anglais. Tout le formatage numerique (Go/pourcentage) utilise desormais un point decimal invariant, independant de la langue du systeme.
+
+---
+
+## Captures d'ecran
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/NephVx2/Windows-Preflight-Cleaner/main/screenshots/01_console-run-start.png" width="49%">
+  <img src="https://raw.githubusercontent.com/NephVx2/Windows-Preflight-Cleaner/main/screenshots/06_html-report-dashboard.png" width="49%">
+</p>
+
+A gauche : un run console normal. A droite : l'en-tete du rapport HTML (tuiles de synthese, barre d'usage disque, tendance sur les derniers runs).
+
+Note : l'interface du script (console et rapport HTML) est entierement en anglais depuis la traduction v5.3.0, y compris sur une machine Windows en francais — ce README reste en francais mais les captures ci-dessous montrent le texte reel affiche a l'ecran.
+
+D'autres captures (les deux runs console, un second run sur une machine deja propre, et le detail complet du rapport HTML section par section) sont disponibles dans le dossier [`screenshots/`](https://github.com/NephVx2/Windows-Preflight-Cleaner/tree/main/screenshots).
 
 ---
 
@@ -56,11 +74,11 @@ Le service `wuauserv` est arrete le temps du nettoyage, puis redemarre.
 
 | Cible | Chemin |
 |---|---|
-| Temp Utilisateur | `%TEMP%` |
-| Temp Windows | `C:\Windows\Temp` |
+| User Temp | `%TEMP%` |
+| Windows Temp | `C:\Windows\Temp` |
 | DirectX Cache | `%LOCALAPPDATA%\D3DSCache` |
 | Delivery Optimization | `C:\Windows\SoftwareDistribution\DeliveryOptimization` |
-| Miniatures Explorer | `%LOCALAPPDATA%\Microsoft\Windows\Explorer` |
+| Explorer Thumbnails | `%LOCALAPPDATA%\Microsoft\Windows\Explorer` |
 | WER ReportArchive | `C:\ProgramData\Microsoft\Windows\WER\ReportArchive` |
 | WER ReportQueue | `C:\ProgramData\Microsoft\Windows\WER\ReportQueue` |
 | WER Temp | `%LOCALAPPDATA%\Microsoft\Windows\WER\Temp` |
@@ -72,9 +90,9 @@ Le service `wuauserv` est arrete le temps du nettoyage, puis redemarre.
 
 | Cible | Chemin |
 |---|---|
-| Logs WindowsUpdate | `C:\Windows\Logs\WindowsUpdate` |
-| Logs CBS | `C:\Windows\Logs\CBS` |
-| Logs DISM | `C:\Windows\Logs\DISM` |
+| WindowsUpdate Logs | `C:\Windows\Logs\WindowsUpdate` |
+| CBS Logs | `C:\Windows\Logs\CBS` |
+| DISM Logs | `C:\Windows\Logs\DISM` |
 | Panther Setup Logs | `C:\Windows\Panther` |
 </details>
 
@@ -104,9 +122,9 @@ Le service `FontCache` est arrete le temps du nettoyage, puis redemarre.
 
 | Cible | Chemin |
 |---|---|
-| Cache npm | `%APPDATA%\npm-cache` |
-| Cache pip | `%LOCALAPPDATA%\pip\Cache` |
-| Cache cargo | `%USERPROFILE%\.cargo\registry\cache` |
+| npm Cache | `%APPDATA%\npm-cache` |
+| pip Cache | `%LOCALAPPDATA%\pip\Cache` |
+| cargo Cache | `%USERPROFILE%\.cargo\registry\cache` |
 | VS Code Cache | `%APPDATA%\Code\Cache` |
 | VS Code CachedData | `%APPDATA%\Code\CachedData` |
 | VS Code Logs | `%APPDATA%\Code\logs` |
@@ -132,8 +150,8 @@ JumpLists du Demarrer/barre des taches — purement cosmetique/vie privee, recre
 
 | Cible | Chemin |
 |---|---|
-| JumpLists Automatiques | `%APPDATA%\Microsoft\Windows\Recent\AutomaticDestinations` |
-| JumpLists Manuelles | `%APPDATA%\Microsoft\Windows\Recent\CustomDestinations` |
+| Automatic JumpLists | `%APPDATA%\Microsoft\Windows\Recent\AutomaticDestinations` |
+| Custom JumpLists | `%APPDATA%\Microsoft\Windows\Recent\CustomDestinations` |
 </details>
 
 <details>
@@ -162,7 +180,7 @@ JumpLists du Demarrer/barre des taches — purement cosmetique/vie privee, recre
 |---|---|
 | Steam AppCache | `<dossier Steam>\appcache` |
 | Steam HtmlCache | `<dossier Steam>\htmlcache` |
-| Steam Downloads incomplets | `<dossier Steam>\steamapps\downloading` |
+| Steam Incomplete Downloads | `<dossier Steam>\steamapps\downloading` |
 </details>
 
 <details>
@@ -213,21 +231,21 @@ JumpLists du Demarrer/barre des taches — purement cosmetique/vie privee, recre
 - PowerShell 5.1 (integre a Windows) ou PowerShell 7+.
 - Droits administrateur. Le script s'auto-eleve si lance depuis une session non-admin (fenetre UAC).
 - `robocopy.exe` et `DISM.exe` presents (integres a Windows par defaut).
-- Le dossier de rapports doit etre inscriptible : `%USERPROFILE%\Desktop\Rapports_Maintenance\Nettoyage systeme` (cree automatiquement au premier lancement si absent).
+- Le dossier de rapports doit etre inscriptible : `%USERPROFILE%\Desktop\Maintenance_Reports\Windows-Preflight-Cleaner` (cree automatiquement au premier lancement si absent).
 - Si le script est signe numeriquement (recommande en environnement `-ExecutionPolicy AllSigned`/`RemoteSigned`) : le certificat de signature doit etre approuve sur la machine cible, sans quoi PowerShell refusera l'execution.
 
 ---
 
 ## Premier lancement (pas a pas)
 
-1. Copier `Nettoyage-Windows11-v5_2.ps1` sur la machine cible (par exemple dans un dossier `C:\Scripts\Maintenance`).
+1. Copier `Windows-Preflight-Cleaner.ps1` sur la machine cible (par exemple dans un dossier `C:\Scripts\Maintenance`).
 
 2. Ouvrir un terminal PowerShell (pas besoin de le lancer en admin a la main, le script s'auto-eleve).
 
 3. Verifier les prerequis systeme **sans rien nettoyer** :
 
    ```powershell
-   .\Nettoyage-Windows11-v5_2.ps1 -SelfTest
+   .\Windows-Preflight-Cleaner.ps1 -SelfTest
    ```
 
    Execute 17 verifications automatiques (droits admin, presence de robocopy/DISM, services requis, fonctions internes du script) et affiche PASS/FAIL pour chacune. Le script quitte ensuite sans avoir touche a aucun fichier. Code de sortie attendu : `0` (voir [Codes de sortie](#codes-de-sortie)).
@@ -235,7 +253,7 @@ JumpLists du Demarrer/barre des taches — purement cosmetique/vie privee, recre
 4. Faire une **simulation complete** avant le premier nettoyage reel, pour voir ce qui serait supprime sans rien supprimer :
 
    ```powershell
-   .\Nettoyage-Windows11-v5_2.ps1 -DryRun
+   .\Windows-Preflight-Cleaner.ps1 -DryRun
    ```
 
    Calcule les gains potentiels par cible, genere un rapport HTML `[MODE SIMULATION]` et n'execute ni suppression, ni DISM, ni vidage DNS/corbeille.
@@ -245,7 +263,7 @@ JumpLists du Demarrer/barre des taches — purement cosmetique/vie privee, recre
 6. Lancer le **premier nettoyage reel** :
 
    ```powershell
-   .\Nettoyage-Windows11-v5_2.ps1
+   .\Windows-Preflight-Cleaner.ps1
    ```
 
    Repondre aux invites interactives (ouverture du rapport, confirmation ENTREE en fin de run). Le nettoyage complet dure generalement moins de 10 secondes hors DISM (`StartComponentCleanup` peut prendre plusieurs minutes selon l'etat du dossier WinSxS).
@@ -270,10 +288,10 @@ JumpLists du Demarrer/barre des taches — purement cosmetique/vie privee, recre
 **Exemples :**
 
 ```powershell
-.\Nettoyage-Windows11-v5_2.ps1 -DryRun
-.\Nettoyage-Windows11-v5_2.ps1 -Silent -SkipTargets "Prefetch","Steam AppCache"
-.\Nettoyage-Windows11-v5_2.ps1 -CreateRestorePoint -ResetBase
-.\Nettoyage-Windows11-v5_2.ps1 -RetainReportsDays 30
+.\Windows-Preflight-Cleaner.ps1 -DryRun
+.\Windows-Preflight-Cleaner.ps1 -Silent -SkipTargets "Prefetch","Steam AppCache"
+.\Windows-Preflight-Cleaner.ps1 -CreateRestorePoint -ResetBase
+.\Windows-Preflight-Cleaner.ps1 -RetainReportsDays 30
 ```
 
 ---
@@ -301,16 +319,16 @@ echo $LASTEXITCODE
 A chaque run (y compris `-DryRun`, et partiellement `-SelfTest`), le script ecrit dans :
 
 ```
-%USERPROFILE%\Desktop\Rapports_Maintenance\Nettoyage systeme\
+%USERPROFILE%\Desktop\Maintenance_Reports\Windows-Preflight-Cleaner\
 ```
 
 | Fichier | Contenu |
 |---|---|
-| `Nettoyage-AAAA-MM-JJ_HH-mm-ss.html` | Rapport visuel : tuiles de synthese, barre d'usage disque, tendance sur les 10 derniers runs, detail par cible avec statut colore, journal des actions |
-| `Nettoyage-AAAA-MM-JJ_HH-mm-ss.json` | Export complet de toutes les donnees du run |
+| `Windows-Preflight-Cleaner-AAAA-MM-JJ_HH-mm-ss.html` | Rapport visuel : tuiles de synthese, barre d'usage disque, tendance sur les 10 derniers runs, detail par cible avec statut colore, journal des actions |
+| `Windows-Preflight-Cleaner-AAAA-MM-JJ_HH-mm-ss.json` | Export complet de toutes les donnees du run |
 | `Transcript-AAAA-MM-JJ_HH-mm-ss.log` | Transcript PowerShell brut |
-| `Historique_v5.csv` | Historique cumulatif (append), jamais purge |
-| `Baseline_v5.json` | Etat du dernier run, pour calculer le delta au run suivant, jamais purge |
+| `Windows-Preflight-Cleaner-History.csv` | Historique cumulatif (append), jamais purge |
+| `Windows-Preflight-Cleaner-Baseline.json` | Etat du dernier run, pour calculer le delta au run suivant, jamais purge |
 
 Les rapports HTML/JSON/Transcript plus anciens que `-RetainReportsDays` (60 jours par defaut) sont purges automatiquement en fin de run.
 
@@ -341,7 +359,7 @@ Le script est autonome (aucune dependance externe autre que `robocopy.exe` et `D
    | Champ | Valeur |
    |---|---|
    | Programme/script | `pwsh.exe` (ou `powershell.exe`) |
-   | Arguments | `-NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\Maintenance\Nettoyage-Windows11-v5_2.ps1" -Silent` |
+   | Arguments | `-NoProfile -ExecutionPolicy Bypass -File "C:\Scripts\Maintenance\Windows-Preflight-Cleaner.ps1" -Silent` |
    | Executer avec les autorisations maximales | Oui (necessaire pour les droits administrateur) |
 
 5. **Superviser via `$LASTEXITCODE`** plutot que le parsing du transcript : un code `1` ou `2` justifie une verification manuelle ou une alerte dans l'outil de supervision.
@@ -356,6 +374,12 @@ Le script est autonome (aucune dependance externe autre que `robocopy.exe` et `D
 <summary><strong>Une cible apparait en rouge (!) ou jaune (~) dans le rapport</strong></summary>
 
 Des fichiers etaient ouverts par une application au moment du nettoyage (ex : navigateur en cours d'execution pendant le nettoyage de son cache). Fermer l'application concernee et relancer le script pour finir le nettoyage de cette cible. Le resume de fin de run liste les cibles concernees avec le volume exact non recupere.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/NephVx2/Windows-Preflight-Cleaner/main/screenshots/09_html-report-detail-table-locked.png" width="80%">
+</p>
+
+Le tableau de detail (ci-dessus) et le journal des actions signalent tous deux les cibles partielles (`~`) et verrouillees (`!`) avec une bordure de gauche coloree et un decompte explicite, ex. `VS Code Logs : partial cleanup (41 removed, 29 locked)`.
 </details>
 
 <details>
@@ -384,4 +408,4 @@ Normal : Windows peut reoccuper l'espace libere quasi instantanement (cache disq
 
 ---
 
-<sub>Nettoyage-Windows11 v5.2 — construit et durci via des tests iteratifs en conditions reelles.</sub>
+<sub>Windows-Preflight-Cleaner v5.3.0 — construit et durci via des tests iteratifs en conditions reelles.</sub>
