@@ -16,6 +16,7 @@ Self-contained PowerShell maintenance script for Windows 11. Safely cleans 46+ s
 - [What it does NOT touch](#what-it-does-not-touch)
 - [Prerequisites](#prerequisites)
 - [First run](#first-run-step-by-step)
+- [Desktop shortcut](#desktop-shortcut)
 - [Parameters](#parameters)
 - [Exit codes](#exit-codes)
 - [Generated reports](#generated-reports)
@@ -267,6 +268,35 @@ Start Menu / Taskbar JumpLists — purely cosmetic/privacy-related, automaticall
    Answer the interactive prompts (open report, final ENTER confirmation). The full cleanup typically takes under 10 seconds excluding DISM (`StartComponentCleanup` can take several minutes depending on the state of the WinSxS folder).
 
 7. *(Optional, for automated deployment)* once the behavior has been validated manually, schedule the run via Windows Task Scheduler with `-Silent` (see [Multi-machine deployment](#multi-machine-deployment)).
+
+---
+
+## Desktop shortcut
+
+For a machine you'll clean by hand every so often, a desktop shortcut is faster than opening a terminal each time.
+
+1. Right-click the Desktop → **New** → **Shortcut**.
+2. In **"Type the location of the item"**, paste one of the two commands below (pick the one for your PowerShell version — see the flag table for what each part actually does), then **Next** → give it a name → **Finish**.
+
+| PowerShell version | Command |
+|---|---|
+| **PowerShell 7+** (`pwsh.exe`, separate install) | `pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\path\to\Windows-Preflight-Cleaner.ps1"` |
+| **Windows PowerShell 5.1** (`powershell.exe`, built into every Windows install, no setup needed) | `powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\path\to\Windows-Preflight-Cleaner.ps1"` |
+
+The script itself works identically either way (its `-SelfTest` checks compatibility with both editions) — use whichever PowerShell you already have. If you're not sure, `powershell.exe` is always present and needs no extra step.
+
+**What the command actually does, flag by flag:**
+
+| Flag | What it does |
+|---|---|
+| `pwsh.exe` / `powershell.exe` | The PowerShell engine itself — PowerShell 7+ or the Windows-native 5.1, respectively. |
+| `-NoProfile` | Skips loading your personal PowerShell profile script (`$PROFILE`) on startup. Faster, and avoids any custom function/alias/module you've set up interfering with the script's own environment. |
+| `-ExecutionPolicy Bypass` | Overrides the execution policy for **this one process only** — it does not change your system-wide policy. Needed because scripts downloaded from the internet are tagged with the "Mark of the Web" and the common `RemoteSigned` policy blocks them from running otherwise. |
+| `-File "..."` | Runs this specific `.ps1` file with the given path. |
+
+The script re-elevates itself (UAC prompt) on its own when it detects it isn't running as Administrator, so nothing in the shortcut itself needs a "Run as administrator" checkbox to *work*.
+
+**That said, a plain double-click still opens the classic console window (`conhost`)**, which has slightly rougher font rendering than the modern Windows Terminal window Explorer's own **"Run as administrator"** uses — and can occasionally misalign already-printed lines if you resize the window mid-run (cosmetic only, see [Troubleshooting](#troubleshooting)). If you'd rather have the nicer rendering from the start, right-click the shortcut and choose **"Run as administrator"** instead of double-clicking it — functionally identical, just a better-looking window.
 
 ---
 
