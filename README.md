@@ -434,6 +434,12 @@ Normal Windows behavior if a checkpoint was already created within the last 24 h
 Normal: Windows can reclaim freed space almost instantly for its own purposes (disk cache, temporary system files generated in parallel). Refer instead to the per-target "Gain" column in the HTML report, which precisely measures the space freed for each cleaned folder.
 </details>
 
+<details>
+<summary><strong>Lines look misaligned after resizing the console window</strong></summary>
+
+Resizing the console mid-run (or after completion, before closing it) can visually misalign already-printed lines. This is an inherent `conhost`/Windows Terminal reflow limitation, not a script bug: each console line is built from several separate colored `Write-Host` segments, and the terminal host doesn't always redraw them correctly against a new width. Purely cosmetic — the actual data (HTML/JSON/CSV/transcript) is unaffected either way. Avoid resizing the window while the script is running, or use "Run as administrator" instead of a plain double-click, which renders through the more reflow-friendly Windows Terminal (see [Desktop shortcut](#desktop-shortcut)).
+</details>
+
 ---
 
 <sub>Windows-Preflight-Cleaner v5.3.0 — built and hardened through iterative real-machine testing.</sub>
