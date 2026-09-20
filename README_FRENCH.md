@@ -436,6 +436,12 @@ Comportement normal de Windows si un point a deja ete cree dans les dernieres 24
 Normal : Windows peut reoccuper l'espace libere quasi instantanement (cache disque, fichiers systeme temporaires generes en parallele). Se referer plutot a la colonne "Gain" par cible dans le rapport HTML, qui mesure precisement l'espace libere pour chaque dossier nettoye.
 </details>
 
+<details>
+<summary><strong>Des lignes semblent decalees apres redimensionnement de la fenetre console</strong></summary>
+
+Redimensionner la console en cours de run (ou apres la fin, avant de la fermer) peut decaler visuellement des lignes deja affichees. C'est une limitation inherente au reflow de `conhost`/Windows Terminal, pas un bug du script : chaque ligne console est composee de plusieurs segments `Write-Host` colores separes, et le host console ne les redessine pas toujours correctement face a une nouvelle largeur. Purement cosmetique — les donnees reelles (HTML/JSON/CSV/transcript) ne sont affectees dans aucun cas. Evite de redimensionner la fenetre pendant que le script tourne, ou utilise "Executer en tant qu'administrateur" plutot qu'un simple double-clic, qui s'affiche via le Windows Terminal, plus tolerant au redimensionnement (voir [Raccourci bureau](#raccourci-bureau)).
+</details>
+
 ---
 
 <sub>Windows-Preflight-Cleaner v5.3.0 — construit et durci via des tests iteratifs en conditions reelles.</sub>
