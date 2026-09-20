@@ -16,6 +16,7 @@ Script PowerShell autonome de maintenance pour Windows 11. Nettoie en toute secu
 - [Ce que le script ne touche pas](#ce-que-le-script-ne-touche-pas)
 - [Prerequis](#prerequis)
 - [Premier lancement](#premier-lancement-pas-a-pas)
+- [Raccourci bureau](#raccourci-bureau)
 - [Parametres](#parametres)
 - [Codes de sortie](#codes-de-sortie)
 - [Rapports generes](#rapports-generes)
@@ -269,6 +270,35 @@ JumpLists du Demarrer/barre des taches — purement cosmetique/vie privee, recre
    Repondre aux invites interactives (ouverture du rapport, confirmation ENTREE en fin de run). Le nettoyage complet dure generalement moins de 10 secondes hors DISM (`StartComponentCleanup` peut prendre plusieurs minutes selon l'etat du dossier WinSxS).
 
 7. *(Optionnel, pour un deploiement automatise)* une fois le comportement valide manuellement, planifier le run via le Planificateur de taches Windows avec `-Silent` (voir [Deploiement multi-machines](#deploiement-multi-machines)).
+
+---
+
+## Raccourci bureau
+
+Pour une machine que tu nettoies a la main de temps en temps, un raccourci bureau est plus rapide que d'ouvrir un terminal a chaque fois.
+
+1. Clic droit sur le Bureau → **Nouveau** → **Raccourci**.
+2. Dans **"Entrez l'emplacement de l'element"**, colle l'une des deux commandes ci-dessous (choisis celle qui correspond a ta version de PowerShell — voir le tableau des options pour le detail de chaque partie), puis **Suivant** → donne-lui un nom → **Terminer**.
+
+| Version de PowerShell | Commande |
+|---|---|
+| **PowerShell 7+** (`pwsh.exe`, installation separee) | `pwsh.exe -NoProfile -ExecutionPolicy Bypass -File "C:\chemin\vers\Windows-Preflight-Cleaner.ps1"` |
+| **Windows PowerShell 5.1** (`powershell.exe`, integre a toute installation de Windows, aucune installation requise) | `powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\chemin\vers\Windows-Preflight-Cleaner.ps1"` |
+
+Le script fonctionne a l'identique dans les deux cas (son `-SelfTest` verifie la compatibilite avec les deux editions) — utilise celle que tu as deja. En cas de doute, `powershell.exe` est toujours present et ne demande aucune etape supplementaire.
+
+**Ce que fait concretement la commande, option par option :**
+
+| Option | Ce qu'elle fait |
+|---|---|
+| `pwsh.exe` / `powershell.exe` | Le moteur PowerShell lui-meme — PowerShell 7+ ou la version 5.1 native de Windows, selon le cas. |
+| `-NoProfile` | Ignore le chargement de ton profil PowerShell personnel (`$PROFILE`) au demarrage. Plus rapide, et evite qu'une fonction/alias/module personnalise que tu as configure n'interfere avec l'environnement du script. |
+| `-ExecutionPolicy Bypass` | Contourne la politique d'execution pour **ce seul process** — ca ne modifie pas ta politique systeme globale. Necessaire car les scripts telecharges depuis Internet sont marques du "Mark of the Web", et la politique courante `RemoteSigned` bloque sinon leur execution. |
+| `-File "..."` | Execute ce fichier `.ps1` precis, au chemin indique. |
+
+Le script se re-eleve lui-meme (invite UAC) des qu'il detecte qu'il ne tourne pas en Administrateur, donc rien dans le raccourci lui-meme n'a besoin d'une case "Executer en tant qu'administrateur" pour *fonctionner*.
+
+**Ceci dit, un simple double-clic ouvre quand meme la fenetre console classique (`conhost`)**, dont le rendu de police est legerement plus rugueux que la fenetre Windows Terminal moderne utilisee par le **"Executer en tant qu'administrateur"** propre a l'Explorateur — et peut occasionnellement decaler des lignes deja affichees si tu redimensionnes la fenetre en cours de run (purement cosmetique, voir [Depannage](#depannage)). Si tu preferes le rendu le plus propre des le depart, fais un clic droit sur le raccourci et choisis **"Executer en tant qu'administrateur"** plutot qu'un double-clic — fonctionnellement identique, juste une fenetre plus soignee.
 
 ---
 
