@@ -243,7 +243,27 @@ JumpLists du Demarrer/barre des taches — purement cosmetique/vie privee, recre
 
 2. Ouvrir un terminal PowerShell (pas besoin de le lancer en admin a la main, le script s'auto-eleve).
 
-3. Verifier les prerequis systeme **sans rien nettoyer** :
+   Puis se placer dans le dossier qui contient le script (adapter le chemin ; garder les guillemets s'il contient des espaces) :
+
+   ```powershell
+   cd "$HOME\Downloads"
+   ```
+
+3. **Debloquer le script** s'il a ete telecharge depuis Internet. Windows marque les fichiers telecharges, et la politique d'execution de PowerShell (`RemoteSigned`, par exemple) refuse de lancer un script marque. Depuis le dossier du script :
+
+   ```powershell
+   Unblock-File .\Windows-Preflight-Cleaner.ps1
+   ```
+
+   Si PowerShell indique plutot que l'execution de scripts est desactivee sur ce systeme (la politique par defaut de Windows est `Restricted`), autoriser d'abord les scripts pour le compte courant (la modification ne s'applique qu'a ce compte, pas a toute la machine) :
+
+   ```powershell
+   Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+   ```
+
+   Toujours bloque ? Voir le [guide pas a pas](https://github.com/NephVx2/Script-blocked-Look-at-this/blob/main/README_POWERSHELL_FRENCH.md).
+
+4. Verifier les prerequis systeme **sans rien nettoyer** :
 
    ```powershell
    .\Windows-Preflight-Cleaner.ps1 -SelfTest
@@ -251,7 +271,7 @@ JumpLists du Demarrer/barre des taches — purement cosmetique/vie privee, recre
 
    Execute 17 verifications automatiques (droits admin, presence de robocopy/DISM, services requis, fonctions internes du script) et affiche PASS/FAIL pour chacune. Le script quitte ensuite sans avoir touche a aucun fichier. Code de sortie attendu : `0` (voir [Codes de sortie](#codes-de-sortie)).
 
-4. Faire une **simulation complete** avant le premier nettoyage reel, pour voir ce qui serait supprime sans rien supprimer :
+5. Faire une **simulation complete** avant le premier nettoyage reel, pour voir ce qui serait supprime sans rien supprimer :
 
    ```powershell
    .\Windows-Preflight-Cleaner.ps1 -DryRun
@@ -259,9 +279,9 @@ JumpLists du Demarrer/barre des taches — purement cosmetique/vie privee, recre
 
    Calcule les gains potentiels par cible, genere un rapport HTML `[MODE SIMULATION]` et n'execute ni suppression, ni DISM, ni vidage DNS/corbeille.
 
-5. Lire le rapport HTML genere (le script propose de l'ouvrir automatiquement, sauf en mode `-Silent`) pour verifier que les cibles et les volumes estimes correspondent aux attentes sur cette machine.
+6. Lire le rapport HTML genere (le script propose de l'ouvrir automatiquement, sauf en mode `-Silent`) pour verifier que les cibles et les volumes estimes correspondent aux attentes sur cette machine.
 
-6. Lancer le **premier nettoyage reel** :
+7. Lancer le **premier nettoyage reel** :
 
    ```powershell
    .\Windows-Preflight-Cleaner.ps1
@@ -269,7 +289,7 @@ JumpLists du Demarrer/barre des taches — purement cosmetique/vie privee, recre
 
    Repondre aux invites interactives (ouverture du rapport, confirmation ENTREE en fin de run). Le nettoyage complet dure generalement moins de 10 secondes hors DISM (`StartComponentCleanup` peut prendre plusieurs minutes selon l'etat du dossier WinSxS).
 
-7. *(Optionnel, pour un deploiement automatise)* une fois le comportement valide manuellement, planifier le run via le Planificateur de taches Windows avec `-Silent` (voir [Deploiement multi-machines](#deploiement-multi-machines)).
+8. *(Optionnel, pour un deploiement automatise)* une fois le comportement valide manuellement, planifier le run via le Planificateur de taches Windows avec `-Silent` (voir [Deploiement multi-machines](#deploiement-multi-machines)).
 
 ---
 
