@@ -239,7 +239,7 @@ Start Menu / Taskbar JumpLists — purely cosmetic/privacy-related, automaticall
 
 1. Copy `Windows-Preflight-Cleaner.ps1` to the target machine (for example into a `C:\Scripts\Maintenance` folder).
 
-2. Open a PowerShell terminal (no need to run it as admin manually — the script self-elevates).
+2. Open a PowerShell terminal — preferably as Administrator. This isn't required (the script self-elevates on its own if you don't), but launching it directly via "Run as administrator" opens the modern Windows Terminal window instead of the classic console (`conhost`), with cleaner font rendering and less risk of visual misalignment if you resize the window mid-run (see [Troubleshooting](#troubleshooting)).
 
    Then go to the folder that contains the script (adjust the path; keep the quotes if it contains spaces):
 
