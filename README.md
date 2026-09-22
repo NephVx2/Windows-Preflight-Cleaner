@@ -241,7 +241,27 @@ Start Menu / Taskbar JumpLists — purely cosmetic/privacy-related, automaticall
 
 2. Open a PowerShell terminal (no need to run it as admin manually — the script self-elevates).
 
-3. Check system prerequisites **without cleaning anything**:
+   Then go to the folder that contains the script (adjust the path; keep the quotes if it contains spaces):
+
+   ```powershell
+   cd "$HOME\Downloads"
+   ```
+
+3. **Unblock the script** if you downloaded it from the Internet. Windows flags downloaded files, and PowerShell's execution policy (`RemoteSigned`, for example) refuses to run a flagged script. From the script's folder:
+
+   ```powershell
+   Unblock-File .\Windows-Preflight-Cleaner.ps1
+   ```
+
+   If PowerShell says instead that running scripts is disabled on this system (the Windows default policy is `Restricted`), allow scripts for the current account first (the change applies to this account only, not to the whole machine):
+
+   ```powershell
+   Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+   ```
+
+   Still blocked? See the [step-by-step guide](https://github.com/NephVx2/Script-blocked-Look-at-this).
+
+4. Check system prerequisites **without cleaning anything**:
 
    ```powershell
    .\Windows-Preflight-Cleaner.ps1 -SelfTest
@@ -249,7 +269,7 @@ Start Menu / Taskbar JumpLists — purely cosmetic/privacy-related, automaticall
 
    Runs 17 automated checks (admin rights, presence of robocopy/DISM, required services, internal script functions) and displays PASS/FAIL for each. The script exits without touching any files. Expected exit code: `0` (see [Exit codes](#exit-codes)).
 
-4. Run a **full simulation** before the first real cleanup, to preview what would be removed without removing anything:
+5. Run a **full simulation** before the first real cleanup, to preview what would be removed without removing anything:
 
    ```powershell
    .\Windows-Preflight-Cleaner.ps1 -DryRun
@@ -257,9 +277,9 @@ Start Menu / Taskbar JumpLists — purely cosmetic/privacy-related, automaticall
 
    Calculates potential gains per target, generates an HTML report flagged `[SIMULATION MODE]`, and performs no deletion, no DISM run, and no DNS/Recycle Bin flush.
 
-5. Read the generated HTML report (the script offers to open it automatically, unless `-Silent` is used) to confirm the targets and estimated volumes make sense on this particular machine.
+6. Read the generated HTML report (the script offers to open it automatically, unless `-Silent` is used) to confirm the targets and estimated volumes make sense on this particular machine.
 
-6. Run the **first real cleanup**:
+7. Run the **first real cleanup**:
 
    ```powershell
    .\Windows-Preflight-Cleaner.ps1
@@ -267,7 +287,7 @@ Start Menu / Taskbar JumpLists — purely cosmetic/privacy-related, automaticall
 
    Answer the interactive prompts (open report, final ENTER confirmation). The full cleanup typically takes under 10 seconds excluding DISM (`StartComponentCleanup` can take several minutes depending on the state of the WinSxS folder).
 
-7. *(Optional, for automated deployment)* once the behavior has been validated manually, schedule the run via Windows Task Scheduler with `-Silent` (see [Multi-machine deployment](#multi-machine-deployment)).
+8. *(Optional, for automated deployment)* once the behavior has been validated manually, schedule the run via Windows Task Scheduler with `-Silent` (see [Multi-machine deployment](#multi-machine-deployment)).
 
 ---
 
