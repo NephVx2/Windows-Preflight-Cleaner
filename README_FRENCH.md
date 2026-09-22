@@ -241,7 +241,7 @@ JumpLists du Demarrer/barre des taches — purement cosmetique/vie privee, recre
 
 1. Copier `Windows-Preflight-Cleaner.ps1` sur la machine cible (par exemple dans un dossier `C:\Scripts\Maintenance`).
 
-2. Ouvrir un terminal PowerShell (pas besoin de le lancer en admin a la main, le script s'auto-eleve).
+2. Ouvrir un terminal PowerShell — de preference en tant qu'administrateur. Ce n'est pas obligatoire (le script s'auto-eleve tout seul si tu ne le fais pas), mais lancer directement via "Executer en tant qu'administrateur" ouvre la fenetre Windows Terminal moderne plutot que la console classique (`conhost`), avec un rendu de police plus net et moins de risque de decalage visuel si tu redimensionnes la fenetre en cours de run (voir [Depannage](#depannage)).
 
    Puis se placer dans le dossier qui contient le script (adapter le chemin ; garder les guillemets s'il contient des espaces) :
 
